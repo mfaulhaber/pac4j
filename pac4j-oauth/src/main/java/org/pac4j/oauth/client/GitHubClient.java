@@ -22,7 +22,6 @@ import org.pac4j.oauth.profile.github.GitHubProfile;
 import org.scribe.builder.api.GitHubApi;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
-import org.scribe.model.Token;
 import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -73,7 +72,7 @@ public class GitHubClient extends BaseOAuth20Client<GitHubProfile> {
     }
     
     @Override
-    protected String getProfileUrl(final Token accessToken) {
+    protected String getProfileUrl() {
         return "https://api.github.com/user";
     }
     

@@ -26,7 +26,6 @@ import org.scribe.builder.api.LinkedInApi20;
 import org.scribe.builder.api.StateApi20;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
-import org.scribe.model.Token;
 import org.scribe.oauth.LinkedInOAuth20ServiceImpl;
 
 /**
@@ -99,7 +98,7 @@ public class LinkedIn2Client extends BaseOAuth20Client<LinkedIn2Profile> {
     }
     
     @Override
-    protected String getProfileUrl(final Token accessToken) {
+    protected String getProfileUrl() {
         return "https://api.linkedin.com/v1/people/~:(" + this.fields + ")";
     }
     

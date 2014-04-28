@@ -80,9 +80,7 @@ public final class TestFormClient extends TestCase implements TestsConstants {
     
     public void testRedirectionUrl() throws RequiresHttpAction {
         final FormClient formClient = getFormClient();
-        MockWebContext context = MockWebContext.create();
-        formClient.redirect(context, false, false);
-        assertEquals(LOGIN_URL, context.getResponseLocation());
+        assertEquals(LOGIN_URL, formClient.getRedirectionUrl(MockWebContext.create(), false, false));
     }
     
     public void testGetCredentialsMissingUsername() {

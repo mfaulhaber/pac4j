@@ -24,7 +24,6 @@ import org.pac4j.oauth.profile.google2.Google2Profile;
 import org.scribe.builder.api.GoogleApi20;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
-import org.scribe.model.Token;
 import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,7 +93,7 @@ public class Google2Client extends BaseOAuth20Client<Google2Profile> {
     }
 
     @Override
-    protected String getProfileUrl(final Token accessToken) {
+    protected String getProfileUrl() {
         return "https://www.googleapis.com/oauth2/v2/userinfo";
     }
 

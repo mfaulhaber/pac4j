@@ -24,7 +24,6 @@ import org.pac4j.oauth.profile.paypal.PayPalProfile;
 import org.scribe.builder.api.PayPalApi20;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
-import org.scribe.model.Token;
 import org.scribe.oauth.PayPalOAuth20ServiceImpl;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,13 +50,11 @@ public class PayPalClient extends BaseOAuth20Client<PayPalProfile> {
     protected String scope = DEFAULT_SCOPE;
     
     public PayPalClient() {
-        setTokenAsHeader(true);
     }
     
     public PayPalClient(final String key, final String secret) {
         setKey(key);
         setSecret(secret);
-        setTokenAsHeader(true);
     }
     
     @Override
@@ -80,7 +77,7 @@ public class PayPalClient extends BaseOAuth20Client<PayPalProfile> {
     }
     
     @Override
-    protected String getProfileUrl(final Token accessToken) {
+    protected String getProfileUrl() {
         return "https://api.paypal.com/v1/identity/openidconnect/userinfo?schema=openid";
     }
     

@@ -26,7 +26,7 @@ import org.pac4j.core.profile.UserProfile;
  * A client has a type accessible by the {@link #getName()} method.<br />
  * A client supports the authentication process and user profile retrieval through :<br />
  * <ul>
- * <li>the {@link #redirect(WebContext, boolean, boolean)} method to get the redirection to perform for the user to start the authentication (at
+ * <li>the {@link #getRedirectionUrl(WebContext,boolean,boolean)} method to get the url where to redirect the user for authentication (at
  * the provider)</li>
  * <li>the {@link #getCredentials(WebContext)} method to get the credentials (in the application) after the user has been successfully
  * authenticated at the provider</li>
@@ -37,18 +37,18 @@ import org.pac4j.core.profile.UserProfile;
  * @since 1.4.0
  */
 public interface Client<C extends Credentials, U extends UserProfile> {
-
+    
     /**
      * Get the name of the client.
      * 
      * @return the name of the client
      */
     public String getName();
-
+    
     /**
-     * Redirect to the authentication provider by updating the WebContext accordingly.
+     * Get the redirection url. Generally, the redirection url is the url of the provider for authentication.
      * <p />
-     * Though, if this client requires an indirect redirection, it will return a redirection to the callback url (with an additionnal parameter requesting a
+     * Though, if this client requires an indirect redirection, the url will be the callback url (with an additionnal parameter requesting a
      * redirection). Whatever the kind of client's redirection, the <code>protectedTarget</code> parameter set to <code>true</code> enforces
      * a direct redirection.
      * <p />
@@ -61,15 +61,17 @@ public interface Client<C extends Credentials, U extends UserProfile> {
      * @param context
      * @param protectedTarget
      * @param ajaxRequest
+     * @return the redirection url
      * @throws RequiresHttpAction
      */
-    public void redirect(WebContext context, boolean protectedTarget, boolean ajaxRequest) throws RequiresHttpAction;
-
+    public String getRedirectionUrl(WebContext context, boolean protectedTarget, boolean ajaxRequest)
+        throws RequiresHttpAction;
+    
     /**
      * Get the credentials from the web context. In some cases, a {@link RequiresHttpAction} may be thrown instead:<br />
      * <ul>
      * <li>if this client requires an indirect redirection, the redirection will be actually performed by these method and not by the
-     * {@link #getRedirection(WebContext, boolean, boolean)} one (302 HTTP status code)</li>
+     * {@link #getRedirectionUrl(WebContext, boolean, boolean)} one (302 HTTP status code)</li>
      * <li>if the <code>CasClient</code> receives a logout request, it returns a 200 HTTP status code</li>
      * <li>for the <code>BasicAuthClient</code>, if no credentials are sent to the callback url, an unauthorized response (401 HTTP status
      * code) is returned to request credentials through a popup.</li>
@@ -80,7 +82,7 @@ public interface Client<C extends Credentials, U extends UserProfile> {
      * @throws RequiresHttpAction
      */
     public C getCredentials(WebContext context) throws RequiresHttpAction;
-
+    
     /**
      * Get the user profile from the credentials.
      * 

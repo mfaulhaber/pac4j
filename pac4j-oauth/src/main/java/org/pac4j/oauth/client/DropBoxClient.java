@@ -65,7 +65,7 @@ public class DropBoxClient extends BaseOAuth10Client<DropBoxProfile> {
     }
     
     @Override
-    protected String getProfileUrl(final Token accessToken) {
+    protected String getProfileUrl() {
         return "https://api.dropbox.com/1/account/info";
     }
     

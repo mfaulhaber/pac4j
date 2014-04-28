@@ -26,7 +26,6 @@ import org.jasig.cas.client.validation.ProxyList;
 import org.jasig.cas.client.validation.Saml11TicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
-import org.pac4j.cas.authorization.DefaultCasAuthorizationGenerator;
 import org.pac4j.cas.credentials.CasCredentials;
 import org.pac4j.cas.logout.CasSingleSignOutHandler;
 import org.pac4j.cas.logout.LogoutHandler;
@@ -35,7 +34,6 @@ import org.pac4j.cas.profile.CasProfile;
 import org.pac4j.cas.profile.CasProxyProfile;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Protocol;
-import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.exception.RequiresHttpAction;
@@ -85,37 +83,40 @@ import org.slf4j.LoggerFactory;
  * @since 1.4.0
  */
 public class CasClient extends BaseClient<CasCredentials, CasProfile> {
-
+    
     protected static final Logger logger = LoggerFactory.getLogger(CasClient.class);
-
+    
     public enum CasProtocol {
-        CAS10, CAS20, CAS20_PROXY, SAML
+        CAS10,
+        CAS20,
+        CAS20_PROXY,
+        SAML
     };
-
+    
     protected static final String SERVICE_PARAMETER = "service";
-
+    
     public static final String SERVICE_TICKET_PARAMETER = "ticket";
-
+    
     protected LogoutHandler logoutHandler = new NoLogoutHandler();
-
+    
     protected TicketValidator ticketValidator;
-
+    
     protected String casLoginUrl;
-
+    
     protected String casPrefixUrl;
-
+    
     protected CasProtocol casProtocol = CasProtocol.CAS20;
-
+    
     protected boolean renew = false;
-
+    
     protected boolean gateway = false;
-
+    
     protected boolean acceptAnyProxy = false;
-
+    
     protected ProxyList allowedProxyChains = new ProxyList();
-
+    
     protected CasProxyReceptor casProxyReceptor;
-
+    
     /**
      * Get the redirection url.
      * 
@@ -123,16 +124,16 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
      * @return the redirection url
      */
     @Override
-    protected RedirectAction retrieveRedirectAction(final WebContext context) {
+    protected String retrieveRedirectionUrl(final WebContext context) {
         final String contextualCasLoginUrl = prependHostToUrlIfNotPresent(this.casLoginUrl, context);
         final String contextualCallbackUrl = getContextualCallbackUrl(context);
 
         final String redirectionUrl = CommonUtils.constructRedirectUrl(contextualCasLoginUrl, SERVICE_PARAMETER,
-                contextualCallbackUrl, this.renew, this.gateway);
+                                                                       contextualCallbackUrl, this.renew, this.gateway);
         logger.debug("redirectionUrl : {}", redirectionUrl);
-        return RedirectAction.redirect(redirectionUrl);
+        return redirectionUrl;
     }
-
+    
     @Override
     protected BaseClient<CasCredentials, CasProfile> newClient() {
         final CasClient casClient = new CasClient();
@@ -146,7 +147,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
         casClient.setCasProxyReceptor(this.casProxyReceptor);
         return casClient;
     }
-
+    
     @Override
     protected void internalInit() {
         CommonHelper.assertNotBlank("callbackUrl", this.callbackUrl);
@@ -170,7 +171,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
                 final Cas20ServiceTicketValidator cas20ServiceTicketValidator = (Cas20ServiceTicketValidator) this.ticketValidator;
                 cas20ServiceTicketValidator.setProxyCallbackUrl(this.casProxyReceptor.getCallbackUrl());
                 cas20ServiceTicketValidator.setProxyGrantingTicketStorage(this.casProxyReceptor
-                        .getProxyGrantingTicketStorage());
+                    .getProxyGrantingTicketStorage());
             }
         } else if (this.casProtocol == CasProtocol.CAS20_PROXY) {
             this.ticketValidator = new Cas20ProxyTicketValidator(this.casPrefixUrl);
@@ -180,14 +181,13 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             if (this.casProxyReceptor != null) {
                 cas20ProxyTicketValidator.setProxyCallbackUrl(this.casProxyReceptor.getCallbackUrl());
                 cas20ProxyTicketValidator.setProxyGrantingTicketStorage(this.casProxyReceptor
-                        .getProxyGrantingTicketStorage());
+                    .getProxyGrantingTicketStorage());
             }
         } else if (this.casProtocol == CasProtocol.SAML) {
             this.ticketValidator = new Saml11TicketValidator(this.casPrefixUrl);
         }
-        addAuthorizationGenerator(new DefaultCasAuthorizationGenerator<CasProfile>());
     }
-
+    
     /**
      * Get the credentials from the web context.
      * 
@@ -196,7 +196,8 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
      * @throws RequiresHttpAction
      */
     @Override
-    protected CasCredentials retrieveCredentials(final WebContext context) throws RequiresHttpAction {
+    protected CasCredentials retrieveCredentials(final WebContext context) throws 
+        RequiresHttpAction {
         // like the SingleSignOutFilter from CAS client :
         if (this.logoutHandler.isTokenRequest(context)) {
             final String ticket = context.getRequestParameter(SERVICE_TICKET_PARAMETER);
@@ -219,7 +220,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             throw new CredentialsException(message);
         }
     }
-
+    
     /**
      * Get the user profile from the credentials.
      * 
@@ -252,92 +253,93 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             throw new TechnicalException(e);
         }
     }
-
+    
     public String getCasLoginUrl() {
         return this.casLoginUrl;
     }
-
+    
     public void setCasLoginUrl(final String casLoginUrl) {
         this.casLoginUrl = casLoginUrl;
     }
-
+    
     public String getCasPrefixUrl() {
         return this.casPrefixUrl;
     }
-
+    
     public void setCasPrefixUrl(final String casPrefixUrl) {
         this.casPrefixUrl = casPrefixUrl;
     }
-
+    
     public CasProtocol getCasProtocol() {
         return this.casProtocol;
     }
-
+    
     public void setCasProtocol(final CasProtocol casProtocol) {
         this.casProtocol = casProtocol;
     }
-
+    
     public boolean isRenew() {
         return this.renew;
     }
-
+    
     public void setRenew(final boolean renew) {
         this.renew = renew;
     }
-
+    
     public boolean isGateway() {
         return this.gateway;
     }
-
+    
     public void setGateway(final boolean gateway) {
         this.gateway = gateway;
     }
-
+    
     public LogoutHandler getLogoutHandler() {
         return this.logoutHandler;
     }
-
+    
     public void setLogoutHandler(final LogoutHandler logoutHandler) {
         this.logoutHandler = logoutHandler;
     }
-
+    
     public boolean isAcceptAnyProxy() {
         return this.acceptAnyProxy;
     }
-
+    
     public void setAcceptAnyProxy(final boolean acceptAnyProxy) {
         this.acceptAnyProxy = acceptAnyProxy;
     }
-
+    
     public ProxyList getAllowedProxyChains() {
         return this.allowedProxyChains;
     }
-
+    
     public void setAllowedProxyChains(final ProxyList allowedProxyChains) {
         this.allowedProxyChains = allowedProxyChains;
     }
-
+    
     public CasProxyReceptor getCasProxyReceptor() {
         return this.casProxyReceptor;
     }
-
+    
     public void setCasProxyReceptor(final CasProxyReceptor casProxyReceptor) {
         this.casProxyReceptor = casProxyReceptor;
     }
-
+    
     @Override
     public String toString() {
         return CommonHelper.toString(this.getClass(), "callbackUrl", this.callbackUrl, "casLoginUrl", this.casLoginUrl,
-                "casPrefixUrl", this.casPrefixUrl, "casProtocol", this.casProtocol, "renew", this.renew, "gateway",
-                this.gateway, "logoutHandler", this.logoutHandler, "acceptAnyProxy", this.acceptAnyProxy,
-                "allowedProxyChains", this.allowedProxyChains, "casProxyReceptor", this.casProxyReceptor);
+                                     "casPrefixUrl", this.casPrefixUrl, "casProtocol", this.casProtocol, "renew",
+                                     this.renew, "gateway", this.gateway, "logoutHandler", this.logoutHandler,
+                                     "acceptAnyProxy", this.acceptAnyProxy, "allowedProxyChains",
+                                     this.allowedProxyChains, "casProxyReceptor", this.casProxyReceptor);
     }
-
+    
     @Override
     protected boolean isDirectRedirection() {
         return true;
     }
-
+    
     @Override
     public Protocol getProtocol() {
         return Protocol.CAS;
